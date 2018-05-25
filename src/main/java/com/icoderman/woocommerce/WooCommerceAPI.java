@@ -56,4 +56,9 @@ public class WooCommerceAPI implements WooCommerce {
         Map<String, String> params = OAuthSignature.getAsMap(config, url, HttpMethod.DELETE);
         return client.delete(url, params);
     }
+
+	@Override
+	public List getAll(String endpointBase) {
+		return getAll(endpointBase,null);
+	}
 }

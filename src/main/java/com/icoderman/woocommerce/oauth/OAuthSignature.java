@@ -1,20 +1,24 @@
 package com.icoderman.woocommerce.oauth;
 
 import com.icoderman.woocommerce.HttpMethod;
+
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * WooCommerce specific OAuth signature generator
@@ -50,7 +54,8 @@ public class OAuthSignature {
     }
 
     public static Map<String, String> getAsMap(OAuthConfig config, String endpoint, HttpMethod httpMethod) {
-        return getAsMap(config, endpoint, httpMethod, Collections.emptyMap());
+    	Map<String,String> noParams = Collections.emptyMap();    	
+    	return getAsMap(config, endpoint, httpMethod, noParams);
     }
 
     public static String getAsQueryString(OAuthConfig config, String endpoint, HttpMethod httpMethod, Map<String, String> params) {
@@ -65,7 +70,8 @@ public class OAuthSignature {
     }
 
     public static String getAsQueryString(OAuthConfig config, String endpoint, HttpMethod httpMethod) {
-        return getAsQueryString(config, endpoint, httpMethod, Collections.emptyMap());
+    	Map<String,String> noParams = Collections.emptyMap();    
+    	return getAsQueryString(config, endpoint, httpMethod, noParams);
     }
 
     private static String generateOAuthSignature(String customerSecret, String endpoint, HttpMethod httpMethod, Map<String, String> parameters) {
@@ -81,7 +87,10 @@ public class OAuthSignature {
             macInstance = Mac.getInstance(HMAC_SHA256);
             SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(UTF_8), HMAC_SHA256);
             macInstance.init(secretKey);
-            return Base64.encodeBase64String(macInstance.doFinal(signatureBaseString.getBytes(UTF_8)));
+            
+            byte encoded[] = Base64.encodeBase64(macInstance.doFinal(signatureBaseString.getBytes(UTF_8)));
+            String usAscii = new String(encoded, "ASCII");            
+            return usAscii;
         } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -106,10 +115,16 @@ public class OAuthSignature {
         return String.format(BASE_SIGNATURE_FORMAT, method, requestURL, paramsString);
     }
 
-    private static String mapToString(Map<String, String> paramsMap, String keyValueDelimiter, String paramsDelimiter) {
-        return paramsMap.entrySet().stream()
-                .map(entry -> entry.getKey() + keyValueDelimiter + entry.getValue())
-                .collect(Collectors.joining(paramsDelimiter));
+    private static String mapToString(Map<String, String> paramsMap, String keyValueDelimiter, String paramsDelimiter) 
+    {
+    	StringBuilder mapInString = new StringBuilder();
+    	for(Entry<String, String> entrySet:paramsMap.entrySet())
+    	{
+    		mapInString.append(entrySet.getKey()).append(keyValueDelimiter).append(entrySet.getValue()).append(paramsDelimiter);
+    	}
+    	mapInString.delete(mapInString.length()-paramsDelimiter.length(), mapInString.length());	
+    	
+    	return mapInString.toString();
     }
 
     private static Map<String, String> percentEncodeParameters(Map<String, String> parameters) {

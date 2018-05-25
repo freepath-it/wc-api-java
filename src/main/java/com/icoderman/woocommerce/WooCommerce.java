@@ -42,9 +42,7 @@ public interface WooCommerce {
      * @param endpointBase API endpoint base @see EndpointBaseType
      * @return List of retrieved entities
      */
-    default List getAll(String endpointBase) {
-        return getAll(endpointBase, Collections.emptyMap());
-    }
+    List getAll(String endpointBase);
 
     /**
      * Updates WooCommerce entity

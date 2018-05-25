@@ -46,8 +46,8 @@
     </distributionManagement>
 
     <properties>
-        <jackson.version>2.9.4</jackson.version>
-        <httpclient.version>4.5.5</httpclient.version>
+        <jackson.version>2.8.3</jackson.version>
+        <httpclient.version>4.5.2</httpclient.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -120,24 +120,6 @@
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <configuration>
-                    <useAgent>true</useAgent>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
